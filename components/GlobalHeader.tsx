@@ -141,8 +141,7 @@ export default function GlobalHeader() {
             <input
               type="text"
               placeholder="Type to search..."
-              className="w-full rounded-md border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              style={{borderColor: 'var(--border)'}}
+              className="w-full rounded-md border border-custom px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
               autoFocus
             />
             <p className="mt-4 text-sm text-muted-foreground">

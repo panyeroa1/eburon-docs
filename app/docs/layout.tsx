@@ -139,7 +139,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
               </div>
 
               {/* Feedback Widget */}
-              <div className="mt-12 pt-8 border-t" style={{borderColor: 'var(--border)'}}>
+              <div className="mt-12 pt-8 border-t border-custom">
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-foreground/60">Was this page helpful?</span>
                   <div className="flex gap-2">
