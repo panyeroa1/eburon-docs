@@ -1,0 +1,318 @@
+
+# Prompting Eburon Voice v1 (alpha)
+
+Learn how to prompt and use expressive tags with Eburon’s voice models at `api.eburon.ai`.
+
+This guide shows practical techniques for:
+
+- Choosing the right **voice profile** for your use case  
+- Controlling **stability** and **expressiveness**  
+- Using **audio tags** for breathing, micro-noises, and emotions  
+- Structuring **single-speaker** and **multi-speaker** prompts  
+- Letting an LLM **enhance** your input text safely
+
+Eburon Voice v1 is in alpha. Very short prompts can produce unstable behaviour. For best results, experiment with prompts longer than **250–300 characters** and with clear emotional context.
+
+---
+
+## Voice selection
+
+The most important parameter in Eburon Voice v1 is the **voice** you choose.
+
+A good rule:
+
+> The closer the base voice is to your desired delivery, the less you need to fight it with tags.
+
+### Emotionally diverse voices
+
+Use an emotionally diverse voice when:
+
+- You need **storytelling**, **CSR simulations**, **sales** or **HR interviews**  
+- You expect a mix of calm, happy, frustrated, or surprised tones in one session  
+
+For these voices, make sure your reference audio contains:
+
+- Neutral statements  
+- At least a few emotionally marked moments (laughter, sighs, emphasis)  
+- Natural breathing and micro pauses
+
+### Targeted niche voices
+
+Use a targeted niche voice when:
+
+- The purpose is narrow, e.g. **IVR agent**, **news reader**, **meditation guide**  
+- You care more about **consistency** than emotional range  
+
+Keep the dataset tightly focused on the target style. Do not mix radically different emotions in the same reference.
+
+### Neutral voices
+
+Neutral voices:
+
+- Are easier to steer across **multiple languages**  
+- Tend to react more predictably to tags such as `[smiles]`, `[sighs]` or `[slight laugh]`  
+- Are ideal as a baseline for experimentation
+
+---
+
+## Settings
+
+Eburon’s SDK or API clients generally expose at least:
+
+- `stability` – how strictly the model stays close to a neutral baseline  
+- `expressiveness` – how strongly it reacts to directional tags  
+- `temperature` / `randomness` – how much variation is allowed
+
+### Stability
+
+`stability` controls how resistant the voice is to drift and noise.
+
+- **Low stability**  
+  - More variation, more risk of artefacts  
+  - Good for highly emotional scenes or creative use  
+- **Medium stability (recommended default)**  
+  - Balanced; responsive to tags but keeps character intact  
+- **High stability**  
+  - Very close to original tone; safer but less reactive to subtle cues  
+
+Example JSON body for `POST https://api.eburon.ai/ai/generate`:
+
+```json
+{
+  "model": "eburon-voice-v1",
+  "voice_id": "beatrice-csr",
+  "stability": 0.65,
+  "expressiveness": 0.7,
+  "input": "Hi, this is Beatrice from Eburon Estate. Let's make your property search simpler."
+}
+```
+
+### Expressiveness
+
+`expressiveness` affects how strongly the voice interprets:
+
+* Audio tags (e.g. `[breath_in]`, `[soft_laugh]`)
+* Punctuation and capitalization
+* Emotional hints in the text itself
+
+Guidelines:
+
+* 0.3 – 0.5: safer for pure IVR / system prompts
+* 0.6 – 0.8: good default for CSR, HR, story, coaching
+* > 0.8: experimental; may over-react to tags
+
+---
+
+## Audio tags
+
+Eburon Voice v1 supports **lightweight audio tags** to simulate breathing, micro-noises and emotional shading.
+
+Tags should be written in square brackets and placed **inline** with text.
+
+> Note: Examples below demonstrate tags conceptually. Always validate against the latest `api.eburon.ai` reference for the exact tag set supported in your deployment.
+
+### Voice-related tags
+
+Use these to shape delivery:
+
+* `[calm]` – steadier, slower, low-stress tone
+* `[warm]` – slightly brighter, more friendly tone
+* `[firm]` – more definite, useful for boundaries or policy statements
+* `[thinking]` – slightly slower, with micro pauses, as if structuring thoughts
+* `[excited]` – higher energy, more pitch variation (use sparingly in CSR)
+
+Example:
+
+```text
+[calm] Thank you for walking me through your situation. [warm] Let me summarize what I heard.
+```
+
+### Breathing & non-verbal tags
+
+These approximate the breathing style you use in your system prompts:
+
+* `[breath_in]` – short, soft inhale before a more structured explanation
+* `[breath_out]` – gentle exhale after acknowledging stress or giving relief
+* `[soft_laugh]` – small, friendly laugh
+* `[clear_throat]` – tiny throat clear, rare
+* `[light_cough]` – very light cough, extremely rare
+
+Examples:
+
+```text
+It's completely normal to feel overwhelmed. [breath_in] Let's slow this down and make one decision at a time.
+```
+
+```text
+So you want city center, huge space, and a tiny budget. [soft_laugh] Classic combination, but we can try.
+```
+
+Use `[clear_throat]` and `[light_cough]` **very sparingly**, at most once in a long dialogue.
+
+### Language & accent tags
+
+If your deployment exposes accent hints, you can gently steer character:
+
+* `[flemish_accent]` – stronger Dutch–Flemish flavour
+* `[neutral_en]` – more neutral international English
+* `[taglish_mix]` – Tagalog + English rhythm
+* `[tr_accent_en]` – Turkish-accented English, etc.
+
+These tags should not override the core voice identity; they only “nudge” it.
+
+Example:
+
+```text
+[neutral_en] We can stay in English for the structure, [taglish_mix] pero puwede tayong mag-usap na mas natural if that’s easier for you.
+```
+
+---
+
+## Punctuation
+
+Punctuation has a strong effect on Eburon Voice v1 delivery:
+
+* **Ellipses `…`** add weight and a micro pause
+* **CAPITALIZATION** increases emphasis (do not overuse)
+* **Commas** create short pauses; **full stops** reset breath and rhythm
+
+Example:
+
+```text
+It was a VERY long day… nobody listened, and you had to carry everything yourself.
+```
+
+Guidelines:
+
+* Use ellipses for emotional hesitation, not at the end of every sentence.
+* Use capitals for 1–2 key words per sentence at most.
+* Prefer natural, conversational punctuation over heavy, formal prose.
+
+---
+
+## Single speaker examples
+
+### CSR reassurance example
+
+```text
+[calm] Hi, this is Beatrice from Eburon Estate. 
+I know the market feels chaotic right now. [breath_in] 
+Let’s just start with your real situation: who’s moving, when, and what you can comfortably afford each month.
+```
+
+### Trade-off explanation
+
+```text
+[thinking] With your current budget and that neighbourhood, 
+getting both a big garden and a fully renovated interior will be hard. 
+We probably need to choose. [warm] Which matters more to you: outdoor space or a modern finish?
+```
+
+---
+
+## Multi-speaker dialogue
+
+When you generate multi-speaker audio using Eburon (for example with `/ai/generate` in dialogue mode), assign each speaker a **voice ID** and embed tags inside each speaker’s text.
+
+Example pseudo-payload:
+
+```json
+{
+  "model": "eburon-voice-v1",
+  "dialogue": [
+    {
+      "voice_id": "beatrice-csr",
+      "text": "[warm] Hi, this is Beatrice from Eburon Estate. What’s your situation right now — buying, renting, or selling?"
+    },
+    {
+      "voice_id": "customer-neutral",
+      "text": "Honestly, I'm just overwhelmed. I have no idea where to start."
+    },
+    {
+      "voice_id": "beatrice-csr",
+      "text": "[calm][breath_in] That’s totally fine. Let’s start simple: who’s moving, when, and what budget range still lets you sleep well at night?"
+    }
+  ]
+}
+```
+
+Guidelines:
+
+* Keep each speaker’s text chunk relatively short (1–4 sentences).
+* Put tags **inside** the text for that speaker, not around the entire conversation.
+* Make sure each `voice_id` matches a deployed voice in `api.eburon.ai`.
+
+---
+
+## Enhancing input with an LLM
+
+Similar to Eleven’s “Enhance” button, you can let an LLM enrich user text with tags before calling the TTS endpoint.
+
+High-level flow:
+
+1. User provides raw text (e.g. CSR script).
+2. You call your internal LLM endpoint (or `/ai/chat`) with a **strict enhancement prompt**.
+3. The LLM outputs the same text + audio tags only.
+4. You send the enhanced text to the TTS endpoint (`/ai/generate`).
+
+Example of a trimmed enhancement prompt (adapted for Eburon):
+
+```text
+You are an assistant that adds Eburon Voice audio tags to dialogue text.
+
+DO:
+- Add tags like [calm], [warm], [breath_in], [breath_out], [soft_laugh], [thinking].
+- Place tags immediately before the fragment they modify, or at a natural pause.
+- Preserve ALL original words and punctuation.
+- Keep the style suitable for a calm, human CSR / broker persona.
+
+DO NOT:
+- Remove or rewrite words.
+- Add new sentences.
+- Use tags for non-voice effects (no music or environment sounds).
+- Insert profanity or sensitive content that was not in the original text.
+
+Return only the enhanced text.
+```
+
+---
+
+## Tips
+
+### Tag combinations
+
+You can safely combine 1–3 tags at the start of a sentence:
+
+```text
+[calm][thinking] Okay, let me structure this so it doesn’t feel overwhelming.
+```
+
+Avoid long, noisy chains of tags like `[calm][warm][thinking][breath_in][soft_laugh]` in a single spot.
+
+### Voice matching
+
+Match tags to the voice’s character:
+
+* A soft neutral CSR voice works well with `[calm]`, `[warm]`, `[breath_in]`, `[breath_out]`, `[soft_laugh]`.
+* A strict IVR voice should use fewer emotional tags and rely more on clean punctuation.
+
+### Text structure
+
+* Write like a real conversation, not a legal contract.
+* Use short paragraphs and explicit line breaks between logical units.
+* When in doubt, read your prompt aloud: if it sounds unnatural, the voice will sound unnatural.
+
+### Experimentation
+
+There are tags and combinations that will work especially well with your internal voices and datasets.
+
+* Start from a **stable baseline** (medium stability, medium expressiveness).
+* Change **one variable at a time**: the voice, a tag, or a single parameter.
+* Save and label good prompt patterns so they can be reused across teams and projects.
+
+---
+
+Was this page helpful?
+
+* Yes
+* No

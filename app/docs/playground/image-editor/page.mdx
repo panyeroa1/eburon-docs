@@ -1,0 +1,202 @@
+
+# Eburon AI Image Editor
+
+> [!WARNING]
+> Running this tool locally requires Python 3.10+ and approximately 10GB of disk space for model downloads. Review the setup requirements before proceeding.
+
+Experience **Eburon's cinematic image editing AI** — create natural scene transitions and AI-powered edits using simple text prompts.
+
+## About Eburon Image Editor
+
+The Eburon Image Editor uses advanced diffusion models optimized for fast 4-step inference, enabling:
+
+- **Cinematic Scene Transitions**: Create natural visual progressions from frame to frame
+- **Next-Scene Generation**: Describe what happens next, and the AI generates it
+- **AI-Powered Editing**: Modify images with natural language instructions
+- **Video Generation**: Turn image sequences into smooth video transitions
+
+**Powered by:** Eburon Image Model v2.5 with specialized scene transition weights
+
+---
+
+## Key Features
+
+### 🎬 Scene Progression
+Generate the natural next frame in a visual sequence with camera-aware prompts.
+
+### 🎨 Smart Editing
+Edit images using natural language — add, remove, or transform elements intelligently.
+
+### 🎥 Video Creation
+Combine edited frames into smooth cinematic transitions.
+
+### 🚀 Fast Inference
+Optimized for 4-step generation with ahead-of-time compilation.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+1. **Python 3.10+** installed on your system
+2. **Eburon API Key** - Get yours from your Eburon account dashboard
+3. **CUDA-compatible GPU** (recommended for best performance)
+
+### Setup Instructions
+
+#### 1. Set your API key
+
+```bash
+export EBURON_API_KEY='your_api_key_here'
+```
+
+Or create a `.env.local` file in the project root:
+
+```bash
+cp .env.local.example .env.local
+# Edit .env.local and add your EBURON_API_KEY
+```
+
+#### 2. Start the image editing service
+
+From the documentation directory, run:
+
+```bash
+chmod +x scripts/start-image-edit.sh
+./scripts/start-image-edit.sh
+```
+
+This will:
+- Create a Python virtual environment
+- Install required dependencies
+- Load the Eburon Image Model
+- Start the interface on port 7860
+
+#### 3. Access the playground
+
+Once started, access the editor at: **http://localhost:7860**
+
+Or use the embedded interface below.
+
+---
+
+## Usage Guide
+
+### Basic Workflow
+
+1. **Upload Image(s)**: Click the input gallery to upload one or more images
+2. **Enter Prompt**: Describe your desired scene transition or edit
+3. **Generate**: Click "Edit!" to create your image
+4. **Iterate**: Use "↗️ Use as input" to continue editing
+5. **Create Video**: Click "🎬 Turn into Video" for smooth transitions
+
+### Prompt Examples
+
+**Scene Transitions:**
+```
+Next Scene: The camera zooms in, revealing fine details of the subject
+Next Scene: Pull back to a wide shot showing the full environment
+Next Scene: Pan right as golden hour light filters through
+```
+
+**Image Edits:**
+```
+Add a warm sunset glow to the background
+Remove the object in the foreground, keep the scene natural
+Change the season to winter with light snow
+```
+
+### Advanced Settings
+
+- **Seed**: Set for reproducible results (or randomize)
+- **Guidance Scale**: How closely output follows your prompt (1.0-10.0)
+- **Inference Steps**: Quality vs speed tradeoff (4 recommended)
+- **Dimensions**: Custom output size (leave empty for auto)
+- **Prompt Enhancement**: Let Eburon AI optimize your prompt
+
+---
+
+## Embedded Playground
+
+<iframe 
+  src="http://localhost:7860" 
+  width="100%" 
+  height="1200px" 
+  frameBorder="0"
+  style={{border: '1px solid #334155', borderRadius: '8px', marginTop: '1rem'}}
+  title="Eburon Image Editor"
+></iframe>
+
+---
+
+## Troubleshooting
+
+### Service won't start
+- Verify Python 3.10+: `python3 --version`
+- Check available disk space (~10GB needed)
+- Ensure CUDA drivers are installed (for GPU)
+
+### "API key not set" error
+- Confirm `EBURON_API_KEY` is exported: `echo $EBURON_API_KEY`
+- Or check it's in your `.env.local` file
+
+### Slow generation
+- GPU is highly recommended (CPU is 10-20x slower)
+- Try reducing image dimensions
+- Ensure no other GPU-intensive processes are running
+
+### Interface not loading
+- Check the service is running: `ps aux | grep app.py`
+- Verify port 7860 is not in use: `lsof -i :7860`
+- Try accessing http://localhost:7860 directly
+
+---
+
+## Technical Details
+
+### Model Architecture
+- **Base Model**: Eburon Image Diffusion v2.5
+- **Enhancement**: Scene transition LoRA weights
+- **Optimization**: Flash Attention 3 + AoT compilation
+- **Inference**: 4-step Euler discrete scheduler
+
+### Performance
+- **Generation Time**: ~2-4 seconds per image (on RTX 4090)
+- **Resolution**: Up to 2048x2048
+- **Batch Size**: 1-4 images per prompt
+
+### API Integration
+
+The playground uses the local service, but you can integrate directly with Eburon's API:
+
+```python
+import requests
+
+response = requests.post(
+    'https://api.eburon.ai/v1/image/edit',
+    headers={'Authorization': f'Bearer {EBURON_API_KEY}'},
+    json={
+        'prompt': 'Next Scene: Camera pulls back revealing the landscape',
+        'image': base64_image,
+        'steps': 4,
+        'guidance_scale': 1.0
+    }
+)
+```
+
+---
+
+## Resources
+
+- [Eburon Image Model Documentation](https://docs.eburon.ai/models/image)
+- [API Reference](https://api.eburon.ai/docs)
+- [Best Practices Guide](/docs/best-practices/prompting/eburon-voice-v1)
+- [Community Gallery](https://community.eburon.ai/gallery)
+
+---
+
+Was this page helpful?
+
+* Yes
+* No

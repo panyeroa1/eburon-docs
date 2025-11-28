@@ -1,0 +1,161 @@
+
+# AI Image Editing Tool
+
+> [!WARNING]
+> Running this tool locally is potentially dangerous. Make sure to review the [Space code](https://huggingface.co/spaces/linoyts/Qwen-Image-Edit-next-scene) before proceeding.
+
+This page provides access to the **Qwen Image Edit Next Scene** tool, which enables cinematic image editing and scene transitions using AI.
+
+## About the Tool
+
+This tool uses [Qwen-Image-Edit-2509](https://huggingface.co/Qwen/Qwen-Image-Edit-2509) with specialized LoRA weights for creating natural visual progressions from frame to frame 🎥. It's optimized for fast 4-step inference.
+
+**Key Features:**
+- Cinematic scene transitions and "next scene" generation
+- AI-powered image editing with natural language prompts
+- Support for multiple input images
+- Video generation from image sequences
+- Advanced prompt rewriting for better results
+
+## Getting Started
+
+### Prerequisites
+
+1. **Python 3.10+** installed on your system
+2. **Hugging Face API Token** - Get yours from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+3. **CUDA-compatible GPU** (recommended for best performance)
+
+### Setup Instructions
+
+#### 1. Set your Hugging Face token
+
+```bash
+export HF_TOKEN='your_huggingface_token_here'
+```
+
+Or create a `.env.local` file in the project root:
+
+```bash
+cp .env.local.example .env.local
+# Edit .env.local and add your HF_TOKEN
+```
+
+#### 2. Start the image editing service
+
+From the documentation directory, run:
+
+```bash
+chmod +x scripts/start-image-edit.sh
+./scripts/start-image-edit.sh
+```
+
+This will:
+- Create a Python virtual environment
+- Install all required dependencies
+- Start the Gradio interface on port 7860
+
+#### 3. Access the tool
+
+Once started, the tool will be available at: **http://localhost:7860**
+
+You can also access it below via the embedded interface.
+
+---
+
+## Usage Guide
+
+### Basic Workflow
+
+1. **Upload Image(s)**: Click on the input gallery to upload one or more images
+2. **Enter Prompt**: Describe the scene transition or edit you want
+   - Example: "Next Scene: The camera pulls back revealing the full landscape"
+3. **Click Edit**: Generate your edited image
+4. **Use as Input**: Click "↗️ Use as input" to continue editing
+5. **Turn into Video**: Click "🎬 Turn into Video" to create an animation
+
+### Prompt Tips
+
+Start prompts with **"Next Scene:"** for best results with cinematic transitions:
+
+- "Next Scene: The camera zooms in, showing the cat walking away from the fire"
+- "Next Scene: The camera pulls back to reveal the full dance floor"
+- "Next Scene: Camera pans right as sunlight breaks through the clouds"
+
+### Advanced Settings
+
+- **Seed**: Set for reproducible results (or use Randomize)
+- **True guidance scale**: Controls how closely the output follows your prompt (1.0-10.0)
+- **Inference steps**: More steps = higher quality, but slower (4 is optimal)
+- **Height/Width**: Custom dimensions (leave empty for automatic)
+- **Rewrite prompt**: Let AI enhance your prompt for better results
+
+---
+
+## Embedded Tool
+
+<iframe 
+  src="http://localhost:7860" 
+  width="100%" 
+  height="1200px" 
+  frameBorder="0"
+  style={{border: '1px solid #334155', borderRadius: '8px', marginTop: '1rem'}}
+  title="Qwen Image Edit Tool"
+></iframe>
+
+---
+
+## Troubleshooting
+
+### Service won't start
+- Check that Python 3.10+ is installed: `python3 --version`
+- Ensure you have enough disk space for the model downloads (~10GB)
+- Verify your GPU is CUDA-compatible (CPU will be very slow)
+
+### "HF_TOKEN not set" warning
+- Make sure you exported the token: `export HF_TOKEN='your-token'`
+- Or added it to your `.env.local` file
+
+### Iframe not loading
+- Verify the service is running on port 7860
+- Check browser console for CORS errors
+- Try accessing http://localhost:7860 directly in a new tab
+
+---
+
+## Manual Installation
+
+If the automated script doesn't work, you can set up manually:
+
+```bash
+# Clone repository (already done)
+cd Qwen-Image-Edit-next-scene
+
+# Create and activate Python environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set HF token
+export HF_TOKEN='your_token_here'
+
+# Run app
+python app.py
+```
+
+---
+
+## Resources
+
+- [Qwen-Image-Edit-2509 Model](https://huggingface.co/Qwen/Qwen-Image-Edit-2509)
+- [Next Scene LoRA Weights](https://huggingface.co/lovis93/next-scene-qwen-image-lora-2509)
+- [Original Hugging Face Space](https://huggingface.co/spaces/linoyts/Qwen-Image-Edit-next-scene)
+- [Try on Qwen Chat](https://chat.qwen.ai/)
+
+---
+
+Was this page helpful?
+
+* Yes
+* No

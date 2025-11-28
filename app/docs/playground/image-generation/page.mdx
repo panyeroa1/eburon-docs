@@ -1,0 +1,266 @@
+
+# Image Generation API
+
+Generate high-quality images programmatically using the Eburon Image Generation API powered by Gemini 3 Pro.
+
+## Quick Start
+
+```python
+# Installation
+pip install google-genai
+```
+
+## Complete Code Example
+
+```python
+import base64
+import mimetypes
+import os
+from google import genai
+from google.genai import types
+
+
+def save_binary_file(file_name, data):
+    """Save generated image to disk"""
+    f = open(file_name, "wb")
+    f.write(data)
+    f.close()
+    print(f"File saved to: {file_name}")
+
+
+def generate_image():
+    """Generate image using Eburon Image API"""
+    client = genai.Client(
+        api_key=os.environ.get("EBURON_API_KEY"),
+    )
+
+    model = "gemini-3-pro-image-preview"
+    
+    # Define your generation request
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part.from_text(
+                    text="""A futuristic cityscape at sunset with flying vehicles 
+                    and holographic advertisements, cyberpunk style, 4K quality"""
+                ),
+            ],
+        ),
+    ]
+    
+    # Enable Google Search for reference (optional)
+    tools = [
+        types.Tool(googleSearch=types.GoogleSearch()),
+    ]
+    
+    # Configure generation parameters
+    generate_content_config = types.GenerateContentConfig(
+        response_modalities=["IMAGE", "TEXT"],
+        image_config=types.ImageConfig(
+            aspect_ratio="16:9",
+            image_size="4K",
+        ),
+        tools=tools,
+        system_instruction=[
+            types.Part.from_text(
+                text="""You are Eburon's image generation specialist.
+                
+                Priority order:
+                1. SAFETY & LEGALITY - Follow content policies
+                2. USER INTENT - Maximize helpfulness and precision
+                3. VISUAL QUALITY - Coherent composition, clear subject, 
+                   good lighting, consistent style
+                4. EFFICIENCY - Clear, implementation-ready specifications
+                
+                Transform vague ideas into highly specific, visually coherent 
+                image generation specifications."""
+            ),
+        ],
+    )
+
+    # Generate and save images
+    file_index = 0
+    for chunk in client.models.generate_content_stream(
+        model=model,
+        contents=contents,
+        config=generate_content_config,
+    ):
+        if (
+            chunk.candidates is None
+            or chunk.candidates[0].content is None
+            or chunk.candidates[0].content.parts is None
+        ):
+            continue
+            
+        if (chunk.candidates[0].content.parts[0].inline_data 
+            and chunk.candidates[0].content.parts[0].inline_data.data):
+            
+            # Save binary image data
+            file_name = f"eburon_generated_{file_index}"
+            file_index += 1
+            inline_data = chunk.candidates[0].content.parts[0].inline_data
+            data_buffer = inline_data.data
+            file_extension = mimetypes.guess_extension(inline_data.mime_type)
+            save_binary_file(f"{file_name}{file_extension}", data_buffer)
+        else:
+            # Print text responses
+            print(chunk.text)
+
+
+if __name__ == "__main__":
+    generate_image()
+```
+
+---
+
+## Configuration
+
+### API Key Setup
+
+```bash
+export EBURON_API_KEY='your_api_key_here'
+```
+
+Or in Python:
+
+```python
+import os
+os.environ["EBURON_API_KEY"] = "your_api_key_here"
+```
+
+### Image Configuration Options
+
+**Aspect Ratios:**
+- `"1:1"` - Square
+- `"16:9"` - Widescreen
+- `"9:16"` - Portrait
+- `"4:3"` - Classic
+
+**Image Sizes:**
+- `"4K"` - 3840×2160
+- `"HD"` - 1920×1080
+- `"SD"` - 1280×720
+
+---
+
+## Advanced Usage
+
+### Custom System Instructions
+
+```python
+system_instruction = [
+    types.Part.from_text(
+        text="""Focus on:
+        - Photorealistic rendering
+        - Dramatic lighting
+        - Cinematic composition
+        - High detail and texture quality"""
+    ),
+]
+```
+
+### Multiple Images
+
+```python
+# Generate multiple variations
+for i in range(5):
+    generate_image()
+```
+
+### With Search Context
+
+Enable Google Search to provide reference context:
+
+```python
+tools = [
+    types.Tool(googleSearch=types.GoogleSearch()),
+]
+```
+
+This helps the model understand current trends and specific references.
+
+---
+
+## Best Practices
+
+### 1. **Be Specific**
+Instead of: "A beautiful landscape"
+Try: "A mountainous landscape at golden hour with alpine meadows, snow-capped peaks, and dramatic cloud formations"
+
+### 2. **Specify Style**
+Include artistic direction:
+- "Photorealistic"
+- "Cyberpunk aesthetic"
+- "Watercolor painting style"
+- "Minimalist design"
+
+### 3. **Control Lighting**
+Mention lighting conditions:
+- "Soft morning light"
+- "Dramatic side lighting"
+- "Neon glow"
+- "Golden hour sunlight"
+
+### 4. **Set Composition**
+Guide the framing:
+- "Wide angle shot"
+- "Close-up portrait"
+- "Bird's eye view"
+- "Rule of thirds composition"
+
+---
+
+## Error Handling
+
+```python
+try:
+    generate_image()
+except Exception as e:
+    print(f"Generation failed: {e}")
+    # Handle specific errors
+    if "API key" in str(e):
+        print("Check your EBURON_API_KEY environment variable")
+    elif "quota" in str(e):
+        print("API quota exceeded, try again later")
+```
+
+---
+
+## Integration with Eburon Platform
+
+### Using with Image Editor
+
+Generate base images, then refine them in the [Image Editor](/docs/playground/image-editor):
+
+1. Generate initial image with this API
+2. Upload to Image Editor playground
+3. Use "Next Scene" prompts for refinement
+4. Export final result
+
+### Batch Processing
+
+```python
+prompts = [
+    "Cyberpunk cityscape at night",
+    "Serene mountain lake at sunrise",
+    "Futuristic vehicle design concept",
+]
+
+for idx, prompt in enumerate(prompts):
+    contents[0].parts[0] = types.Part.from_text(text=prompt)
+    # Generate each image
+    generate_image()
+```
+
+---
+
+## Resources
+
+- [Image Editor Playground](/docs/playground/image-editor)
+- [Eburon API Reference](https://api.eburon.ai/docs)
+- [Google GenAI SDK Docs](https://ai.google.dev/gemini-api/docs/python-sdk)
+
+---
+
+**Need help?** Check out our [community forum](https://community.eburon.ai) or [contact support](https://app.eburon.ai/support).
